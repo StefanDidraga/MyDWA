@@ -71,7 +71,7 @@ RobotState f(RobotState state, double v, double w, double dt) {
 // Generate trajectory
 RobotState generate_traj(RobotState state, double v, double w, double t, double dt) {
     double time = 0.0;
-    while (time <= t) {
+    while (time <= t + 1e-5) {
         time += dt;
         state = f(state, v, w, dt);
     }
@@ -99,8 +99,8 @@ vector<double> evaluation(const RobotState& robot, const vector<double>& vr,
     double sum_distance = 0.0;
     double sum_velocity = 0.0;
 
-    for (double v = vr[0]; v <= vr[1]; v += limits.v_x_res) {
-        for (double w = vr[2]; w <= vr[3]; w += limits.w_res) {
+    for (double v = vr[0]; v <= vr[1] + 1e-5; v += limits.v_x_res) {
+        for (double w = vr[2]; w <= vr[3] + 1e-5; w += limits.w_res) {
             
             // Trajectory prediction
             RobotState robot_star = generate_traj(robot, v, w, params.predict_time, dt);
@@ -121,7 +121,7 @@ vector<double> evaluation(const RobotState& robot, const vector<double>& vr,
             // Braking evaluation (collision check)
             double dist_stop = (v * v) / (2 * limits.a_x_max);
             
-            if (distance > dist_stop && distance >= 1.0) {
+            if (distance > dist_stop && distance >= 0.1) {
                 eval_win.push_back({v, w, heading, distance, velocity, 0.0});
                 sum_heading += heading;
                 sum_distance += distance;
@@ -174,6 +174,7 @@ vector<double> my_dwa_nopath(const RobotState& robot, const Point& goal, const v
 int main() {
     RobotState my_robot = {0.0, 0.0, M_PI/4, 0.0, 0.0};
     Point my_goal = {10.0, 10.0};
+    double dt = 0.1;
     
     vector<Point> obstacles = {
         {5.0, 5.0},
@@ -181,12 +182,33 @@ int main() {
         {5.0, 6.0}
     };
 
+    double sim_time=0;
+    int maxtime = 2;
+    double max_dist = 0.2;
+
+    while (sim_time < maxtime)
+    {
+        vector<double> vel = my_dwa_nopath(my_robot, my_goal, obstacles);
+        my_robot = f(my_robot, vel[0], vel[1], dt);
+        Point robot_pos;
+        robot_pos.x = my_robot.x;
+        robot_pos.y = my_robot.y;
+        cout << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
+        if (min_dist_to_obs(robot_pos, (vector<Point> {my_goal})) < max_dist)
+        {
+            cout << "Goal reached in "<< sim_time<< "\n";
+            break;
+        }
+        sim_time = sim_time + dt;
+    }
+    cout << "Sim time "<< sim_time<< "\n";
+    /*
     try {
         vector<double> cmd_vel = my_dwa_nopath(my_robot, my_goal, obstacles);
-        cout << "Command Velocity - v: " << cmd_vel[0] << " m/s, w: " << cmd_vel[1] << " rad/s\n";
+        cout << "Command Velocity v: " << cmd_vel[0] << " m/s, w: " << cmd_vel[1] << " rad/s\n";
     } catch (const exception& e) {
         cerr << e.what() << '\n';
     }
-
+    */
     return 0;
 }

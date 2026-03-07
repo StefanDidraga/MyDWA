@@ -1,23 +1,23 @@
 clear all;
 clc;
 
-addpath("MotionPlanning\DWA\MyStuff\");
-addpath("MotionPlanning\DWA\utils\data\map\");
+addpath("MotionPlanning\MyDWA\MyStuff\");
+addpath("MotionPlanning\MyDWA\utils\data\map\");
 
 %% load environment
-load("gridmap_20x30_empty.mat");
-[m, ~] = size(grid_map);
-    obs_index = find(grid_map==2);
-    obs = [mod(obs_index - 1, m) + 1, fix((obs_index - 1) / m) + 1];
-
-    obs = [obs ;[6, 6]; [6, 12]; [6, 18]; [12, 6]; [12, 12]; [12, 18]];
-    for i = 10:0.1:30
-        obs = [obs; [14, i]];
-    end
-
-    for i = 5:0.1:15
-        obs = [obs; [i, 25]];
-    end
+% load("gridmap_20x30_empty.mat");
+% [m, ~] = size(grid_map);
+%     obs_index = find(grid_map==2);
+%     obs = [mod(obs_index - 1, m) + 1, fix((obs_index - 1) / m) + 1];
+% 
+%     obs = [obs ;[6, 6]; [6, 12]; [6, 18]; [12, 6]; [12, 12]; [12, 18]];
+%     for i = 10:0.1:30
+%         obs = [obs; [14, i]];
+%     end
+% 
+%     for i = 5:0.1:15
+%         obs = [obs; [i, 25]];
+%     end
 %% environment to comp with c++
 
 obs=[[5,5];[4,6];[5,6]];
@@ -38,7 +38,7 @@ robot2.vx = 0;
 robot2.w = 0;
 
 % threshold
-maxtime = 300;
+maxtime = 2;
 dt = 0.1;
 max_dist = 0.2;
 
@@ -46,32 +46,34 @@ max_dist = 0.2;
 
 %% test to comp wit c++
 
- [v_xstar , wstar] = my_dwa_nopath(robot, goal, obs);
-
- fprintf("Command velocity: vx = %f4.2, w = %f4.2", v_xstar, wstar);
+ % [v_xstar , wstar] = my_dwa_nopath(robot, goal, obs);
+ % 
+ % fprintf("Command velocity: vx = %f4.2, w = %f4.2", v_xstar, wstar);
 
 %% main loop
-sim_time = 0;
-
-robotPlot = [];
-distoobs = [];
-
-
-while sim_time < maxtime
-    [v_xstar , wstar] = my_dwa(robot, goal, obs);
-    robot = f(robot, [v_xstar , wstar], dt);
-    sim_time = sim_time + dt;
-    if dist([robot.x, robot.y],goal')< max_dist
-        fprintf('Goal reached! \n');
-        break
-    end
-    robotPlot = [robotPlot; robot.x, robot.y, robot.theta];
-    distoobs = [distoobs; min(dist(obs, [robot.x; robot.y]))];
-end
-
-if sim_time > maxtime
-    fprintf('Goal was not reached in the given time \n')
-end
+% sim_time = 0;
+% 
+% robotPlot = [];
+% distoobs = [];
+% 
+% 
+% while sim_time < maxtime
+%     [v_xstar , wstar] = my_dwa(robot, goal, obs);
+%     robot = f(robot, [v_xstar , wstar], dt);
+%     sim_time = sim_time + dt;
+%     if dist([robot.x, robot.y],goal')< max_dist
+%         fprintf('Goal reached! \n');
+%         break
+%     end
+%     robotPlot = [robotPlot; robot.x, robot.y, robot.theta];
+%     distoobs = [distoobs; min(dist(obs, [robot.x; robot.y]))];
+% end
+% 
+% if sim_time > maxtime
+%     fprintf('Goal was not reached in the given time \n')
+% else
+%     fprintf('goal reached in %4.2f', sim_time)
+% end
 %% main loop nopath
 sim_time = 0;
 
@@ -93,6 +95,8 @@ end
 
 if sim_time > maxtime
     fprintf('Goal was not reached in the given time \n')
+else
+    fprintf('goal reached in %4.2f', sim_time)
 end
 
 %% plot
@@ -108,15 +112,15 @@ legend
 
 %% dist2obs test
 
-%time_id = linspace(0, sim_time, length(robotPlot));
-time_id2 = linspace(0, sim_time, length(robotPlot2));
-figure 
-hold on
-%plot(time_id, distoobs)
-plot(time_id2, distoobs2)
-legend
-xlabel('time [s]');
-ylabel('dist [m]');
+% %time_id = linspace(0, sim_time, length(robotPlot));
+% time_id2 = linspace(0, sim_time, length(robotPlot2));
+% figure 
+% hold on
+% %plot(time_id, distoobs)
+% plot(time_id2, distoobs2)
+% legend
+% xlabel('time [s]');
+% ylabel('dist [m]');
 
 
 %% func
