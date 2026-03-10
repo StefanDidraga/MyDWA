@@ -183,9 +183,8 @@ int main() {
     };
 
     double sim_time=0;
-    double maxtime = 15.9;
+    int maxtime = 2;
     double max_dist = 0.2;
-    int k = 1;
 
     while (sim_time < maxtime)
     {
@@ -194,13 +193,8 @@ int main() {
         Point robot_pos;
         robot_pos.x = my_robot.x;
         robot_pos.y = my_robot.y;
-        //cout << k << " : " << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
-        //cout << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
-
-        double distance2obs = min_dist_to_obs(robot_pos, (vector<Point> {my_goal}));
-        cout << "Distance to goal "<< distance2obs << "\n";
-        k++;
-        if(distance2obs < max_dist)
+        cout << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
+        if (min_dist_to_obs(robot_pos, (vector<Point> {my_goal})) < max_dist)
         {
             cout << "Goal reached in "<< sim_time<< "\n";
             break;

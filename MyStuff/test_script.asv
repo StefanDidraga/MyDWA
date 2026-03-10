@@ -4,7 +4,7 @@ clc;
 addpath("MotionPlanning\MyDWA\MyStuff\");
 addpath("MotionPlanning\MyDWA\utils\data\map\");
 
-datacpp = readmatrix("CppData.csv");
+datacpp = readtable("CppData.csv");
 
 %% load environment
 % load("gridmap_20x30_empty.mat");
@@ -107,19 +107,11 @@ figure
 hold on
 %plot(robotPlot(:,1),robotPlot(:,2), 'b');
 plot(robotPlot2(:,1),robotPlot2(:,2), 'g--');
-plot(datacpp(:,1), datacpp(:,2), 'b')
+plot(datacpp(:,1), datacpp(:,2))
 scatter(goal(1), goal(2), 100, 'red', 'filled','Marker', 'o')
 scatter(obs(:,1), obs(:,2), 15,'black', 'filled','square');
-legend("MATLAB", "C++")
+legend
 
-
-%% ldmwcd
-
-cpplength = length(datacpp);
-cppend_x = datacpp(cpplength,1);
-cppend_y = datacpp(cpplength,2);
-
-dist([cppend_x, cppend_y],goal')
 
 %% dist2obs test
 
