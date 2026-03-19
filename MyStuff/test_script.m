@@ -119,7 +119,7 @@ cpplength = length(datacpp);
 cppend_x = datacpp(cpplength,1);
 cppend_y = datacpp(cpplength,2);
 
-dist([cppend_x, cppend_y],goal')
+dist([cppend_x, cppend_y],goal)
 
 %% dist2obs test
 

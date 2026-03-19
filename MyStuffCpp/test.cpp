@@ -194,11 +194,11 @@ int main() {
         Point robot_pos;
         robot_pos.x = my_robot.x;
         robot_pos.y = my_robot.y;
-        //cout << k << " : " << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
-        //cout << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
+        cout << k << " : " << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
+  
 
         double distance2obs = min_dist_to_obs(robot_pos, (vector<Point> {my_goal}));
-        cout << "Distance to goal "<< distance2obs << "\n";
+        // cout << "Distance to goal "<< distance2obs << "\n";
         k++;
         if(distance2obs < max_dist)
         {

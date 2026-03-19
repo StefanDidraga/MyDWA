@@ -23,7 +23,7 @@ function [v_x, w] = my_dwa_nopath(robot, goal, obs)
 
     % evalution parameters    [heading, distance, velocity, predict_time, R]
     % R - if the distance is to an object is larger then R it just takes R
-    parameters = [0.065, 1 ,0.75, 3.0, 2];
+    parameters = [0.065, 1.0 ,0.75, 3.0, 2];
 
     vr = calc_dynamic_win(robot, limits, dt);
     [eval_win] = evaluation(robot, vr, goal, obs, limits, parameters, dt);
