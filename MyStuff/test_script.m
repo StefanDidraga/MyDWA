@@ -4,7 +4,7 @@ clc;
 addpath("MotionPlanning\MyDWA\MyStuff\");
 addpath("MotionPlanning\MyDWA\utils\data\map\");
 
-datacpp = readmatrix("CppData.csv");
+datacpp = readmatrix("DWA_traj_Cpp.csv");
 
 %% load environment
 % load("gridmap_20x30_empty.mat");
@@ -88,7 +88,7 @@ while sim_time < maxtime
     robot2 = f(robot2, [v_xstar , wstar], dt);
     sim_time = sim_time + dt;
     if dist([robot2.x, robot2.y],goal')< max_dist
-        fprintf('Goal reached!2 \n');
+        fprintf('Goal reached! \n');
         break
     end
     robotPlot2 = [robotPlot2; robot2.x, robot2.y, robot2.theta];
@@ -103,23 +103,47 @@ end
 
 %% plot
 
-figure
-hold on
-%plot(robotPlot(:,1),robotPlot(:,2), 'b');
-plot(robotPlot2(:,1),robotPlot2(:,2), 'g--');
-plot(datacpp(:,1), datacpp(:,2), 'b')
-scatter(goal(1), goal(2), 100, 'red', 'filled','Marker', 'o')
-scatter(obs(:,1), obs(:,2), 15,'black', 'filled','square');
-legend("MATLAB", "C++")
 
+% Create a single, new figure window
+figure('Position', [100, 100, 800, 600]);
 
+% --- TOP BIG PLOT (Taller) ---
+% 3 rows, 3 columns. Span positions 1 through 6 (the entire top two rows)
+subplot(3, 3, [1:6]); 
+hold on;
+plot(robotPlot2(:,1), robotPlot2(:,2), 'g--', 'LineWidth', 2);
+plot(datacpp(1,:), datacpp(2,:), 'b');
+scatter(goal(1), goal(2), 100, 'red', 'filled', 'Marker', 'o');
+scatter(obs(:,1), obs(:,2), 15, 'black', 'filled', 'square');
+legend("MATLAB", "C++", "Goal", "Obstacles");
+title("Robot Trajectory Comparison");
+hold off;
+
+% --- BOTTOM LEFT: X Error (Shorter) ---
+% Position 7 (first slot of the 3rd row)
+subplot(3, 3, 7);
+plot(time, errorX);
+xlabel("time [s]");
+ylabel("error [m]");
+title("X error");
+
+% --- BOTTOM MIDDLE: Y Error (Shorter) ---
+% Position 8 (second slot of the 3rd row)
+subplot(3, 3, 8);
+plot(time, errorY);
+xlabel("time [s]");
+ylabel("error [m]");
+title("Y error");
+
+% --- BOTTOM RIGHT: Heading Error (Shorter) ---
+% Position 9 (third slot of the 3rd row)
+subplot(3, 3, 9);
+plot(time, errorTheta);
+xlabel("time [s]");
+ylabel("error [rad]");
+title("Heading error");
 %% ldmwcd
 
-cpplength = length(datacpp);
-cppend_x = datacpp(cpplength,1);
-cppend_y = datacpp(cpplength,2);
-
-dist([cppend_x, cppend_y],goal)
 
 %% dist2obs test
 

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
+#include "Tests/Functions/Vec2CSV.hpp"
 
 using namespace std;
 
@@ -181,22 +182,30 @@ int main() {
         {4.0, 6.0},
         {5.0, 6.0}
     };
-
     double sim_time=0;
-    double maxtime = 15.9;
+    double maxtime = 20.0;
     double max_dist = 0.2;
     int k = 1;
+
+
+    vector<double> roboX = {};
+    vector<double> roboY = {};
+    vector<double> robotheta = {};
+    vector<vector <double>> data2file = {};
 
     while (sim_time < maxtime)
     {
         vector<double> vel = my_dwa_nopath(my_robot, my_goal, obstacles);
         my_robot = f(my_robot, vel[0], vel[1], dt);
+
+        // random tests start
         Point robot_pos;
         robot_pos.x = my_robot.x;
+        roboX.push_back(robot_pos.x);
         robot_pos.y = my_robot.y;
+        roboY.push_back(robot_pos.y);
+        robotheta.push_back(my_robot.theta);
         cout << k << " : " << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
-  
-
         double distance2obs = min_dist_to_obs(robot_pos, (vector<Point> {my_goal}));
         // cout << "Distance to goal "<< distance2obs << "\n";
         k++;
@@ -205,16 +214,14 @@ int main() {
             cout << "Goal reached in "<< sim_time<< "\n";
             break;
         }
+        // random tests end
+
         sim_time = sim_time + dt;
     }
     cout << "Sim time "<< sim_time<< "\n";
-    /*
-    try {
-        vector<double> cmd_vel = my_dwa_nopath(my_robot, my_goal, obstacles);
-        cout << "Command Velocity v: " << cmd_vel[0] << " m/s, w: " << cmd_vel[1] << " rad/s\n";
-    } catch (const exception& e) {
-        cerr << e.what() << '\n';
-    }
-    */
+   
+    data2file = {roboX, roboY, robotheta};
+    writeToCSV("DWA_traj_Cpp.csv", data2file);
+    
     return 0;
 }
