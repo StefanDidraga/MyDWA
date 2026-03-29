@@ -61,7 +61,15 @@ function [eval_win] = evaluation(robot, vr, goal, obstacle, limits, parameters, 
             
             % heading evaluation (still uses final pose)
             theta = angle([robot_star.x, robot_star.y], goal(1:2));
-            heading = pi - abs(robot_star.theta - theta);
+            diff = theta - robot_star.theta;
+            while (diff > pi)  
+                diff = diff - 2.0 * pi;
+            end
+            while (diff < -pi) 
+                diff = diff + 2.0 * pi;
+            end
+
+            heading = pi - abs(diff);
             
             dist_vector = dist(obstacle, [robot_star.x; robot_star.y]);
             distance = min(dist_vector);

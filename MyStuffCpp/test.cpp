@@ -72,7 +72,7 @@ RobotState f(RobotState state, double v, double w, double dt) {
 // Generate trajectory
 RobotState generate_traj(RobotState state, double v, double w, double t, double dt) {
     double time = 0.0;
-    while (time <= t + 1e-5) {
+    while (time <= t + 1e-9) {
         time += dt;
         state = f(state, v, w, dt);
     }
@@ -106,9 +106,18 @@ vector<double> evaluation(const RobotState& robot, const vector<double>& vr,
             // Trajectory prediction
             RobotState robot_star = generate_traj(robot, v, w, params.predict_time, dt);
             
-            // Heading evaluation
+            // Calculate target angle
             double theta = calc_angle({robot_star.x, robot_star.y}, goal);
-            double heading = M_PI - abs(robot_star.theta - theta);
+
+            // Find the difference
+            double diff = theta - robot_star.theta;
+
+            // Wrap to [-pi, pi]
+            while (diff > M_PI)  diff -= 2.0 * M_PI;
+            while (diff < -M_PI) diff += 2.0 * M_PI;
+
+            // Now heading is 0 if perfectly aligned, PI if facing away
+            double heading = M_PI - abs(diff);
             
             // Distance evaluation
             double distance = min_dist_to_obs({robot_star.x, robot_star.y}, obstacles);
@@ -173,7 +182,7 @@ vector<double> my_dwa_nopath(const RobotState& robot, const Point& goal, const v
 
 // --- Example Usage ---
 int main() {
-    RobotState my_robot = {0.0, 0.0, M_PI/4, 0.0, 0.0};
+    RobotState my_robot = {0.0, 0.0, M_PI/3, 0.0, 0.0};
     Point my_goal = {10.0, 10.0};
     double dt = 0.1;
     
@@ -183,7 +192,7 @@ int main() {
         {5.0, 6.0}
     };
     double sim_time=0;
-    double maxtime = 20.0;
+    double maxtime = 18.0;
     double max_dist = 0.2;
     int k = 1;
 
@@ -191,7 +200,11 @@ int main() {
     vector<double> roboX = {};
     vector<double> roboY = {};
     vector<double> robotheta = {};
-    vector<vector <double>> data2file = {};
+    vector<double> Angle2goal = {};
+    vector<double> difference = {};
+    vector<double> HeadingWeight = {};
+    vector<vector<double>> data2file = {};
+    vector<vector<double>> heading2file = {};
 
     while (sim_time < maxtime)
     {
@@ -205,7 +218,15 @@ int main() {
         robot_pos.y = my_robot.y;
         roboY.push_back(robot_pos.y);
         robotheta.push_back(my_robot.theta);
-        cout << k << " : " << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
+
+        double angle2goal = calc_angle(robot_pos, my_goal) * 180/M_PI;
+        Angle2goal.push_back(angle2goal);
+        double diff = angle2goal - my_robot.theta * 180/M_PI;
+        difference.push_back(diff);
+        double headingWeight = M_PI - abs(diff) * M_PI/180;
+        HeadingWeight.push_back(headingWeight);
+        cout << "Angle to goal: "<< angle2goal << "   Robot heading: "<< my_robot.theta * 180/M_PI << "   Difference: "<< diff << "   Heading Weight: "<< headingWeight << "\n";
+        //cout << k << " : " << my_robot.x << "   " << my_robot.y << "  " << my_robot.theta<< "\n";
         double distance2obs = min_dist_to_obs(robot_pos, (vector<Point> {my_goal}));
         // cout << "Distance to goal "<< distance2obs << "\n";
         k++;
@@ -222,6 +243,9 @@ int main() {
    
     data2file = {roboX, roboY, robotheta};
     writeToCSV("DWA_traj_Cpp.csv", data2file);
+
+    heading2file = {Angle2goal, robotheta, difference ,HeadingWeight};
+    writeToCSV("DWA_heading_Cpp.csv", heading2file);
     
     return 0;
 }
