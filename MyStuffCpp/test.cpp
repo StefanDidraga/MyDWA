@@ -113,10 +113,9 @@ vector<double> evaluation(const RobotState& robot, const vector<double>& vr,
             double diff = theta - robot_star.theta;
 
             // Wrap to [-pi, pi]
-            while (diff > M_PI)  diff -= 2.0 * M_PI;
-            while (diff < -M_PI) diff += 2.0 * M_PI;
+//            while (diff > M_PI)  diff -= 2.0 * M_PI;
+//            while (diff < -M_PI) diff += 2.0 * M_PI;
 
-            // Now heading is 0 if perfectly aligned, PI if facing away
             double heading = M_PI - abs(diff);
             
             // Distance evaluation
@@ -182,17 +181,17 @@ vector<double> my_dwa_nopath(const RobotState& robot, const Point& goal, const v
 
 // --- Example Usage ---
 int main() {
-    RobotState my_robot = {0.0, 0.0, M_PI/3, 0.0, 0.0};
-    Point my_goal = {10.0, 10.0};
+    RobotState my_robot = {5.0, 0.0, 0.0, 0.0, 0.0};
+    Point my_goal = {5.0, 10.0};
     double dt = 0.1;
     
     vector<Point> obstacles = {
-        {5.0, 5.0},
-        {4.0, 6.0},
-        {5.0, 6.0}
+    //    {5.0, 5.0},
+    //    {4.0, 6.0},
+    //    {5.0, 6.0}
     };
     double sim_time=0;
-    double maxtime = 18.0;
+    double maxtime = 20.0;
     double max_dist = 0.2;
     int k = 1;
 
@@ -242,10 +241,10 @@ int main() {
     cout << "Sim time "<< sim_time<< "\n";
    
     data2file = {roboX, roboY, robotheta};
-    writeToCSV("DWA_traj_Cpp.csv", data2file);
+    writeToCSV("DWA_traj_Cpp_tightAngle.csv", data2file);
 
     heading2file = {Angle2goal, robotheta, difference ,HeadingWeight};
-    writeToCSV("DWA_heading_Cpp.csv", heading2file);
+    writeToCSV("DWA_heading_Cpp_tightAngle.csv", heading2file);
     
     return 0;
 }

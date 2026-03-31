@@ -62,29 +62,32 @@ function [eval_win] = evaluation(robot, vr, goal, obstacle, limits, parameters, 
             % heading evaluation (still uses final pose)
             theta = angle([robot_star.x, robot_star.y], goal(1:2));
             diff = theta - robot_star.theta;
-            while (diff > pi)  
-                diff = diff - 2.0 * pi;
-            end
-            while (diff < -pi) 
-                diff = diff + 2.0 * pi;
-            end
-
-            heading = pi - abs(diff);
+            % while (diff > pi)  
+            %     diff = diff - 2.0 * pi;
+            % end
+            % while (diff < -pi) 
+            %     diff = diff + 2.0 * pi;
+            % end
+            % velocity evaluation
+            velocity = abs(v);
             
+            heading = pi - abs(diff);
+            if(~isempty(obstacle))
             dist_vector = dist(obstacle, [robot_star.x; robot_star.y]);
             distance = min(dist_vector);
                 if distance > parameters(5)
                     distance = parameters(5);
                 end
 
-            % velocity evaluation
-            velocity = abs(v);
-            
             % braking evaluation
             dist_stop = v * v / (2 * limits.a_x_max);
 
             % collision check
             if distance > dist_stop && distance >= 0.1
+                eval_win = [eval_win; [v w heading distance velocity]];
+            end
+            else
+                distance = 0;
                 eval_win = [eval_win; [v w heading distance velocity]];
             end
         end

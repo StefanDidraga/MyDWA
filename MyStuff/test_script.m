@@ -22,10 +22,11 @@ addpath("MotionPlanning\MyDWA\utils\data\map\");
 %     end
 %% environment to comp with c++
 
-obs=[[5,5];[4,6];[5,6]];
+%obs=[[5,5];[4,6];[5,6]];
+obs=[];
 %% start and goal pose
-start = [0, 0, pi/3];
-goal = [10, 10];
+start = [5, 0, 0];
+goal = [5, 10];
 
 robot.x = start(1);
 robot.y = start(2);
@@ -103,7 +104,7 @@ end
 
 %% error calculations
 
-datacpp = readmatrix("DWA_traj_Cpp.csv");
+datacpp = readmatrix("DWA_traj_Cpp_tightAngle.csv");
 
 lc = length(datacpp);
 lm = length(robotPlot2);
@@ -142,7 +143,9 @@ hold on;
 plot(robotPlot2(:,1), robotPlot2(:,2), 'g--', 'LineWidth', 2);
 plot(datacpp(1,:), datacpp(2,:), 'b');
 scatter(goal(1), goal(2), 100, 'red', 'filled', 'Marker', 'o');
+if(~isempty(obs))
 scatter(obs(:,1), obs(:,2), 15, 'black', 'filled', 'square');
+end
 legend("MATLAB", "C++", "Goal", "Obstacles");
 title("Robot Trajectory Comparison");
 hold off;
